@@ -7,8 +7,8 @@
 # Download Flickr30k Entities data mannually into data/flickr30k
 # http://web.engr.illinois.edu/~bplumme2/Flickr30kEntities/
 # Unpack Flickr30kEntities.tar.gz
-tar xvf data/flickr30k/Flickr30kEntities.tar.gz -C data/flickr30k
-rm data/flickr30k/Flickr30kEntities.tar.gz
+# tar xvf data/flickr30k/Flickr30kEntities.tar.gz -C data/flickr30k
+# rm data/flickr30k/Flickr30kEntities.tar.gz
 
 
 # Download Flickr30k images and captions data
