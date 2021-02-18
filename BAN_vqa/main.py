@@ -15,7 +15,7 @@ import utils
 from utils import trim_collate
 from dataset import tfidf_from_questions
 
-GPUID = 0
+GPUID = 2
 os.environ["CUDA_VISIBLE_DEVICES"] = str(GPUID)
 
 def parse_args():

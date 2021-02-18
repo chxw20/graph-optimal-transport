@@ -134,3 +134,4 @@ dmypy.json
 **/tmp/
 **/*~
 **/data/
+**/saved_models/
