@@ -41,7 +41,7 @@ def extract(split, infiles, task='scenario_data'):
     FIELDNAMES = ['image_id', 'image_w', 'image_h', 'num_boxes', 'boxes', 'features']
         
     data_file = {
-        'infer': f'data/{task}/train.hdf5',
+        'infer': f'data/{task}/infer.hdf5',
     }
     indices_file = {
         'infer': f'data/{task}/infer_imgid2idx.pkl'
