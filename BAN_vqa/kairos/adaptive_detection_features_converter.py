@@ -38,7 +38,8 @@ def parse_args():
 
 def extract(split, infiles, task='scenario_data'):
 
-    FIELDNAMES = ['image_id', 'image_w', 'image_h', 'num_boxes', 'boxes', 'features']
+    FIELDNAMES = ["img_id", "img_h", "img_w", "objects_id", "objects_conf",
+                  "attrs_id", "attrs_conf", "num_boxes", "boxes", "features"]
         
     data_file = {
         'infer': f'data/{task}/infer.hdf5',
