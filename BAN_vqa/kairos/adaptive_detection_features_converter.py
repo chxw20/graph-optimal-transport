@@ -50,7 +50,7 @@ def extract(split, infiles, task='scenario_data'):
         'infer': f'data/{task}/infer_ids.pkl'
     }
     path_imgs = {
-        'infer': f'data/{task}/flickr30k_images'
+        'infer': f'data/{task}/images'
     }
     known_num_boxes = {'infer': None}
 
