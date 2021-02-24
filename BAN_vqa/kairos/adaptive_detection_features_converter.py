@@ -70,7 +70,7 @@ def extract(split, infiles, task='scenario_data'):
         num_boxes = 0
         for infile in infiles:
             print("reading tsv...%s" % infile)
-            with open(infile, "r") as tsv_in_file:
+            with open(infile, "r+") as tsv_in_file:
                 reader = csv.DictReader(tsv_in_file, delimiter='\t', fieldnames=FIELDNAMES)
                 for item in reader:
                     print(item['num_boxes'])
@@ -99,7 +99,7 @@ def extract(split, infiles, task='scenario_data'):
     for infile in infiles:
         unknown_ids = []
         print("reading tsv...%s" % infile)
-        with open(infile, "r") as tsv_in_file:
+        with open(infile, "r+") as tsv_in_file:
             reader = csv.DictReader(tsv_in_file, delimiter='\t', fieldnames=FIELDNAMES)
             for item in reader:
                 item['num_boxes'] = int(item['num_boxes'])
