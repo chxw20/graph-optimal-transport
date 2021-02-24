@@ -32,7 +32,7 @@ csv.field_size_limit(sys.maxsize)
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--task', type=str, default='vqa', help='vqa or flickr')
+    parser.add_argument('--task', type=str, default='scenario_data', help='directory name')
     args = parser.parse_args()
     return args
 
@@ -161,20 +161,6 @@ def extract(split, infiles, task='scenario_data'):
 if __name__ == '__main__':
     args = parse_args()
 
-    if args.task == 'vqa':
-        infiles = ['data/trainval/karpathy_test_resnet101_faster_rcnn_genome.tsv',
-            'data/trainval/karpathy_train_resnet101_faster_rcnn_genome.tsv.0',
-            'data/trainval/karpathy_train_resnet101_faster_rcnn_genome.tsv.1',
-            'data/trainval/karpathy_val_resnet101_faster_rcnn_genome.tsv']
-        extract('train', infiles, args.task)
-        extract('val', infiles, args.task)
-        infiles = ['data/test2015/test2015_resnet101_faster_rcnn_genome.tsv']
-        extract('test', infiles, args.task)
-    elif args.task == 'flickr':
-        infiles = ['data/flickr30k/train_flickr30k_resnet101_faster_rcnn_genome.tsv.1',
-                  'data/flickr30k/train_flickr30k_resnet101_faster_rcnn_genome.tsv.2']
-        extract('train', infiles, args.task)
-        infiles = ['data/flickr30k/val_flickr30k_resnet101_faster_rcnn_genome.tsv.3']
-        extract('val', infiles, args.task)
-        infiles = ['data/flickr30k/test_flickr30k_resnet101_faster_rcnn_genome.tsv.3']
-        extract('test', infiles, args.task)
+    infiles = [f'data/{args.task}/{args.task}_imfeat.tsv']
+    extract("infer", infiles, args.task)
+    
