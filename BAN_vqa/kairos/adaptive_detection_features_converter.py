@@ -98,9 +98,10 @@ def extract(split, infiles, task='scenario_data'):
     for infile in infiles:
         unknown_ids = []
         print("reading tsv...%s" % infile)
-        with open(infile, "r+") as tsv_in_file:
+        with open(infile, "r") as tsv_in_file:
             reader = csv.DictReader(tsv_in_file, delimiter='\t', fieldnames=FIELDNAMES)
             for item in reader:
+                print(item['num_boxes'])
                 item['num_boxes'] = int(item['num_boxes'])
                 item['boxes'] = bytes(item['boxes'], 'utf')
                 item['features'] = bytes(item['features'], 'utf')
