@@ -74,7 +74,6 @@ def extract(split, infiles, task='scenario_data'):
             with open(infile, "r+") as tsv_in_file:
                 reader = csv.DictReader(tsv_in_file, delimiter='\t', fieldnames=FIELDNAMES)
                 for item in reader:
-                    print(item['num_boxes'])
                     item['num_boxes'] = int(item['num_boxes'])
                     image_id = int(item['img_id'])
                     if image_id in imgids:

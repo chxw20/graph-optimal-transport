@@ -9,7 +9,7 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 import numpy as np
 
-from dataset import Dictionary, Flickr30kFeatureDataset
+from dataset import Dictionary, KairosFeatureDataset
 import base_model
 import utils
 
@@ -20,7 +20,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = str(GPUID)
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--task', type=str, default='flickr30k', help='dataset name')
+    parser.add_argument('--task', type=str, default='scenario_data', help='dataset name')
     parser.add_argument('--num_hid', type=int, default=1280)
     parser.add_argument('--model', type=str, default='ban')
     parser.add_argument('--op', type=str, default='c')
@@ -41,7 +41,7 @@ if __name__ == '__main__':
 
     dict_path = f'data/{args.task}/dictionary.pkl'
     dictionary = Dictionary.load_from_file(dict_path)
-    eval_dset = Flickr30kFeatureDataset('test', dictionary)
+    eval_dset = KairosFeatureDataset('infer', dictionary)
     args.op = ''
     args.gamma = 1
 

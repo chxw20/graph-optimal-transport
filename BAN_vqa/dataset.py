@@ -597,6 +597,220 @@ class Flickr30kFeatureDataset(Dataset):
         return len(self.entries)
 
 
+# =================================================================================================
+
+def _load_kairos(topic, img_id2idx, bbox, pos_boxes, topic_doc_json):
+    """Load entries
+
+    img_id2idx: dict {img_id -> val} val can be used to retrieve image or features
+    dataroot: root path of dataset
+    name: 'train', 'val', 'test-dev2015', test2015'
+    """
+    pattern_phrase = r'\[(.*?)\]'
+    pattern_no = r'\/EN\#(\d+)'
+
+    missing_entity_count = dict()
+    multibox_entity_count = 0
+
+    entries = []
+    for image_id, idx in img_id2idx.items():
+
+        anno_file = f'data/{topic}/annotations/{image_id}.xml'
+
+        for phrase_id in topic_doc_json[topic]:
+
+            phrase_file = f'data/{topic}/ent_sents/{phrase_id}.txt'
+
+            with open(phrase_file, 'r', encoding='utf-8') as f:
+                sents = [x.strip() for x in f]
+
+            # Parse Annotation
+            root = parse(anno_file).getroot()
+            obj_elems = root.findall('./object')
+            pos_box = pos_boxes[idx]
+            bboxes = bbox[pos_box[0]:pos_box[1]]
+            target_bboxes = {}
+
+            for elem in obj_elems:
+                if elem.find('bndbox') == None or len(elem.find('bndbox')) == 0:
+                    continue
+                left = int(elem.findtext('./bndbox/xmin'))
+                top = int(elem.findtext('./bndbox/ymin'))
+                right = int(elem.findtext('./bndbox/xmax'))
+                bottom = int(elem.findtext('./bndbox/ymax'))
+                assert 0 < left and 0 < top
+
+                for name in elem.findall('name'):
+                    entity_id = int(name.text)
+                    assert 0 < entity_id
+                    if not entity_id in target_bboxes:
+                        target_bboxes[entity_id] = []
+                    else:
+                        multibox_entity_count += 1
+                    target_bboxes[entity_id].append([left, top, right, bottom])
+
+            # Parse Sentence
+            for sent_id, sent in enumerate(sents):
+                sentence = utils.remove_annotations(sent)
+                entities = re.findall(pattern_phrase, sent)
+                entity_indices = []
+                target_indices = []
+                entity_ids = []
+                entity_types = []
+
+                for entity_i, entity in enumerate(entities):
+                    info, phrase = entity.split(' ', 1)
+                    entity_id = int(re.findall(pattern_no, info)[0])
+                    entity_type = info.split('/')[2:]
+
+                    entity_idx = utils.find_sublist(sentence.split(' '), phrase.split(' '))
+                    assert 0 <= entity_idx
+
+                    if not entity_id in target_bboxes:
+                        if entity_id >= 0:
+                            missing_entity_count[entity_type[0]] = missing_entity_count.get(entity_type[0], 0) + 1
+                        continue
+
+                    assert 0 < entity_id
+
+                    entity_ids.append(entity_id)
+                    entity_types.append(entity_type)
+
+                    target_idx = utils.get_match_index(target_bboxes[entity_id], bboxes)
+                    entity_indices.append(entity_idx)
+                    target_indices.append(target_idx)
+
+                if 0 == len(entity_ids):
+                    continue
+
+                entries.append(_create_kairos_entry(idx, sentence, entity_indices, target_indices, entity_ids, entity_types))
+
+    if 0 < len(missing_entity_count.keys()):
+        print('missing_entity_count=')
+        print(missing_entity_count)
+        print('multibox_entity_count=%d' % multibox_entity_count)
+
+    return entries
+
+
+# idx, sentence, entity_indices, target_indices, entity_ids, entity_types
+def _create_kairos_entry(img, sentence, entity_indices, target_indices, entity_ids, entity_types):
+    ent_types = ["ABS", "AML", "BAL", "BOD", "COM", "FAC", "GPE", "INF", "LAW",
+                 "LOC", "MHI", "MON", "NAT", "ORG", "PER", "PLA", "PTH", "RES",
+                 "SEN", "SID", "TTL", "VAL", "VEH", "WEA"]
+    type_map = dict([(f"kairos:Primitives/Entities/{t}", i) for (i, t) in enumerate(ent_types)])
+    MAX_TYPE_NUM = 5
+    for i, entity_type in enumerate(entity_types):
+        assert MAX_TYPE_NUM >= len(entity_type)
+        entity_types[i] = list(type_map[x] for x in entity_type)
+        entity_types[i] += [-1] * (MAX_TYPE_NUM-len(entity_type))
+    entry = {
+        'image'          : img,
+        'sentence'       : sentence,
+        'entity_indices' : entity_indices,
+        'target_indices' : target_indices,
+        'entity_ids'     : entity_ids,
+        'entity_types'   : entity_types,
+        'entity_num'     : len(entity_ids)}
+    return entry
+
+
+
+class KairosFeatureDataset(Dataset):
+    def __init__(self, name, dictionary, dataset='data/scenario_data/'):
+        super(KairosFeatureDataset, self).__init__()
+
+        self.num_ans_candidates = 100
+
+        self.dictionary = dictionary
+
+        self.img_id2idx = cPickle.load(
+            open(os.path.join(dataroot, '%s_imgid2idx.pkl' % name), 'rb'))
+
+        h5_path = os.path.join(dataroot, '%s.hdf5' % name)
+
+        print('loading features from h5 file')
+        with h5py.File(h5_path, 'r') as hf:
+            self.features = np.array(hf.get('image_features'))
+            self.spatials = np.array(hf.get('spatial_features'))
+            self.bbox = np.array(hf.get('image_bb'))
+            self.pos_boxes = np.array(hf.get('pos_boxes'))
+
+        self.entries = _load_kairos(dataroot, self.img_id2idx, self.bbox, self.pos_boxes)
+        self.tokenize()
+        self.tensorize(self.num_ans_candidates)
+        self.v_dim = self.features.size(1)
+        self.s_dim = self.spatials.size(1)
+
+    def tokenize(self, max_length=82):
+        """Tokenizes the questions.
+
+        This will add q_token in each entry of the dataset.
+        -1 represent nil, and should be treated as padding_idx in embedding
+        """
+        for entry in self.entries:
+            tokens = self.dictionary.tokenize(entry['sentence'], False)
+            tokens = tokens[:max_length]
+            if len(tokens) < max_length:
+                # Note here we pad in front of the sentence
+                padding = [self.dictionary.padding_idx] * (max_length - len(tokens))
+                tokens = tokens + padding
+            utils.assert_eq(len(tokens), max_length)
+            entry['p_token'] = tokens
+
+    def tensorize(self, max_box=100, max_entities=16, max_length=82):
+        self.features = torch.from_numpy(self.features)
+        self.spatials = torch.from_numpy(self.spatials)
+
+        for entry in self.entries:
+            phrase = torch.from_numpy(np.array(entry['p_token']))
+            entry['p_token'] = phrase
+
+            assert len(entry['target_indices']) == entry['entity_num']
+            assert len(entry['entity_indices']) == entry['entity_num']
+
+            target_tensors = []
+            for i in range(entry['entity_num']):
+                target_tensor = torch.zeros(1, max_box)
+                if len(entry['target_indices'][i]) > 0:
+                    target_idx = torch.from_numpy(np.array(entry['target_indices'][i]))
+                    target_tensor = torch.zeros(max_box).scatter_(0, target_idx, 1).unsqueeze(0)
+                target_tensors.append(target_tensor)
+            assert len(target_tensors) <= max_entities, '> %d entities!' % max_entities
+            for i in range(max_entities - len(target_tensors)):
+                target_tensor = torch.zeros(1, max_box)
+                target_tensors.append(target_tensor)
+                entry['entity_ids'].append(0)
+            # padding entity_indices with non-overlapping indices
+            entry['entity_indices'] += [x for x in range(max_length) if x not in entry['entity_indices']]
+            entry['entity_indices'] = entry['entity_indices'][:max_entities]
+            entry['target'] = torch.cat(target_tensors, 0)
+            # entity positions in (e) tensor
+            entry['e_pos'] = torch.LongTensor(entry['entity_indices'])
+            entry['e_num'] = torch.LongTensor([entry['entity_num']])
+            entry['entity_ids'] = torch.LongTensor(entry['entity_ids'])
+            entry['entity_types'] = torch.LongTensor(entry['entity_types'])
+
+    def __getitem__(self, index):
+        entry = self.entries[index]
+        features = self.features[self.pos_boxes[entry['image']][0]:self.pos_boxes[entry['image']][1], :]
+        spatials = self.spatials[self.pos_boxes[entry['image']][0]:self.pos_boxes[entry['image']][1], :]
+
+        sentence = entry['p_token']
+        e_pos = entry['e_pos']
+        e_num = entry['e_num']
+        target = entry['target']
+        entity_ids = entry['entity_ids']
+        entity_types = entry['entity_types']
+
+        return features, spatials, sentence, e_pos, e_num, target, entity_ids, entity_types
+
+    def __len__(self):
+        return len(self.entries)
+
+
+
+# =================================================================================================
 
 
 def tfidf_from_questions(names, dictionary, dataroot='data', target=['vqa', 'vg', 'cap', 'flickr']):
