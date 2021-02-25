@@ -717,12 +717,14 @@ def _create_kairos_entry(img, sentence, entity_indices, target_indices, entity_i
 
 
 class KairosFeatureDataset(Dataset):
-    def __init__(self, name, dictionary, dataset='data/scenario_data/'):
+    def __init__(self, name, dictionary, dataset='scenario_data'):
         super(KairosFeatureDataset, self).__init__()
 
         self.num_ans_candidates = 100
 
         self.dictionary = dictionary
+
+        dataroot = f"data/{dataset}"
 
         self.img_id2idx = cPickle.load(
             open(os.path.join(dataroot, '%s_imgid2idx.pkl' % name), 'rb'))
@@ -736,7 +738,7 @@ class KairosFeatureDataset(Dataset):
             self.bbox = np.array(hf.get('image_bb'))
             self.pos_boxes = np.array(hf.get('pos_boxes'))
 
-        self.entries = _load_kairos(dataroot, self.img_id2idx, self.bbox, self.pos_boxes)
+        self.entries = _load_kairos(dataset, self.img_id2idx, self.bbox, self.pos_boxes)
         self.tokenize()
         self.tensorize(self.num_ans_candidates)
         self.v_dim = self.features.size(1)
