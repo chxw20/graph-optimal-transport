@@ -13,8 +13,6 @@ from dataset import Dictionary, KairosFeatureDataset
 import base_model
 import utils
 
-from train_flickr import evaluate
-
 GPUID = 0
 os.environ["CUDA_VISIBLE_DEVICES"] = str(GPUID)
 
@@ -30,6 +28,43 @@ def parse_args():
     parser.add_argument('--batch_size', type=int, default=256)
     args = parser.parse_args()
     return args
+
+
+@torch.no_grad()
+def evaluate(model, dataloader):
+    upper_bound = 0
+    entropy = None
+    score = [0] * 3
+    N = 0
+    logits_all = []
+    for i, (v, b, p, e, n, a, idx, types) in enumerate(dataloader):
+        v = v.cuda()
+        b = b.cuda()
+        p = p.cuda()
+        e = e.cuda()
+        a = a.cuda()
+        _, logits, _ = model(v, b, p, e, None)
+        n_obj = logits.size(2)
+        logits.squeeze_()
+
+        merged_logits = torch.cat(tuple(logits[j, :, :n[j][0]] for j in range(n.size(0))), -1).permute(1, 0)
+        merged_a = torch.cat(tuple(a[j, :n[j][0], :n_obj] for j in range(n.size(0))), 0)
+
+        logits_all.append(merged_logits)
+
+        recall = compute_recall_with_logits(merged_logits, merged_a.data)
+        for r_idx, r in enumerate(recall):
+            score[r_idx] += r
+        N += n.sum().float()
+        upper_bound += merged_a.max(-1, False)[0].sum().item()
+
+    for i in range(3):
+        score[i] = score[i] / N
+    upper_bound = upper_bound / N
+
+    return score, upper_bound, entropy, logits_all
+
+
 
 
 if __name__ == '__main__':
@@ -58,8 +93,9 @@ if __name__ == '__main__':
     eval_loader =  DataLoader(eval_dset, batch_size, shuffle=True, num_workers=1, collate_fn=utils.trim_collate)
     model.train(False)
 
-    eval_score, bound, entropy = evaluate(model, eval_loader)
+    eval_score, bound, entropy, logits_all = evaluate(model, eval_loader)
     print('\teval score: %.2f/%.2f/%.2f (%.2f)' % (
         100 * eval_score[0], 100 * eval_score[1], 100 * eval_score[2], 100 * bound))
 
 
+    np.save(logits_all, f"data/{args.task}/results.npy")
