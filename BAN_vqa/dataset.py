@@ -689,8 +689,11 @@ def _load_kairos(dataset, img_id2idx, bbox, pos_boxes, topic_doc_json, topic=Non
 
                 if 0 == len(entity_ids):
                     continue
-
-                entries.append(_create_kairos_entry(idx, sent_id, sentence, entity_indices, target_indices, entity_ids, entity_types))
+                try:
+                    entry = _create_kairos_entry(idx, sent_id, sentence, entity_indices, target_indices, entity_ids, entity_types)
+                    entries.append(entry)
+                except:
+                    continue
 
     if 0 < len(missing_entity_count.keys()):
         print('missing_entity_count=')
