@@ -644,7 +644,7 @@ def _load_kairos(dataset, img_id2idx, bbox, pos_boxes, topic_doc_json, topic=Non
                 top = int(elem.findtext('./bndbox/ymin'))
                 right = int(elem.findtext('./bndbox/xmax'))
                 bottom = int(elem.findtext('./bndbox/ymax'))
-                assert 0 < left and 0 < top
+                assert 0 < left and 0 < top, f"[{left}, {top}, {right}, {bottom}]"
 
                 for name in elem.findall('name'):
                     entity_id = int(name.text)
