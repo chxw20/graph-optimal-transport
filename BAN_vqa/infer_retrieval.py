@@ -91,7 +91,7 @@ if __name__ == '__main__':
     eval_loader =  DataLoader(eval_dset, batch_size, shuffle=False, num_workers=1, collate_fn=utils.trim_collate)
     model.train(False)
 
-    bound, logits_all, a_all = evaluate(model, eval_loader)
+    bound, logits_all, a_all = infer(model, eval_loader)
     print('\tupper bound: %.2f' % (100 * bound))
 
     pdb.set_trace()
