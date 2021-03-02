@@ -119,5 +119,5 @@ def build_ban(dataset, num_hid, op='', gamma=4, task='vqa'):
             num_hid, num_hid * 2, dataset.num_ans_candidates, .5)
         counter = Counter(objects)
         return BanModel(dataset, w_emb, q_emb, v_att, b_net, q_prj, c_prj, classifier, counter, op, gamma)
-    elif task == 'flickr':
+    elif task in ['flickr', 'flickr30k']:
         return BanModel_flickr(w_emb, q_emb, v_att, op, gamma)
