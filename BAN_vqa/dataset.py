@@ -625,7 +625,7 @@ def _load_kairos(dataset, img_id2idx, bbox, pos_boxes, topic_doc_json, topic=Non
 
         for phrase_id in topic_doc_json[topic]:
 
-            phrase_file = f'data/{dataset}/ent_sents/{phrase_id}.txt'
+            phrase_file = f'data/{dataset}/json_output/ent_sents/{phrase_id}.txt'
 
             with open(phrase_file, 'r', encoding='utf-8') as f:
                 sents = [x.strip() for x in f]
