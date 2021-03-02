@@ -671,10 +671,7 @@ def _load_kairos(dataset, img_id2idx, bbox, pos_boxes, topic_doc_json, topic=Non
                     entity_type = info.split('/')[2:]
 
                     entity_idx = utils.find_sublist(sentence.split(' '), phrase.split(' '))
-                    try:
-                        assert 0 <= entity_idx, f"entity_idx = {entity_idx}"
-                    except:
-                        continue
+                    assert 0 <= entity_idx, f"\tentity_idx = {entity_idx}, entity = {phrase} \n\tsentence = {sentence}"
 
                     if not entity_id in target_bboxes:
                         if entity_id >= 0:
@@ -692,11 +689,9 @@ def _load_kairos(dataset, img_id2idx, bbox, pos_boxes, topic_doc_json, topic=Non
 
                 if 0 == len(entity_ids):
                     continue
-                try:
-                    entry = _create_kairos_entry(idx, sent_id, sentence, entity_indices, target_indices, entity_ids, entity_types)
-                    entries.append(entry)
-                except:
-                    continue
+                entry = _create_kairos_entry(idx, sent_id, sentence, entity_indices, target_indices, entity_ids, entity_types)
+                entries.append(entry)
+                
 
     if 0 < len(missing_entity_count.keys()):
         print('missing_entity_count=')
