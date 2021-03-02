@@ -75,6 +75,9 @@ if __name__ == '__main__':
     dict_path = f'data/{args.task}/dictionary.pkl'
     dictionary = Dictionary.load_from_file(dict_path)
     eval_dset = KairosFeatureDataset('infer', dictionary, args.dset)
+    
+    pdb.set_trace()
+
     args.op = ''
     args.gamma = 1
 
