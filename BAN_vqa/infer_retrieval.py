@@ -13,6 +13,7 @@ from dataset import Dictionary, KairosFeatureDataset
 import base_model
 import utils
 import pdb
+from tqdm import tqdm
 
 GPUID = 0
 if os.getenv("CUDA_VISIBLE_DEVICES") is None:
@@ -39,7 +40,7 @@ def infer(model, dataloader):
     N = 0
     logits_all = []
     a_all = []
-    for i, (v, b, p, e, n, a, idx, types) in enumerate(dataloader):
+    for i, (v, b, p, e, n, a, idx, types) in tqdm(enumerate(dataloader)):
         v = v.cuda()
         b = b.cuda()
         p = p.cuda()
@@ -76,8 +77,6 @@ if __name__ == '__main__':
     dictionary = Dictionary.load_from_file(dict_path)
     eval_dset = KairosFeatureDataset('infer', dictionary, args.dset)
     
-    pdb.set_trace()
-
     args.op = ''
     args.gamma = 1
 
@@ -94,7 +93,7 @@ if __name__ == '__main__':
     eval_loader =  DataLoader(eval_dset, batch_size, shuffle=False, num_workers=1, collate_fn=utils.trim_collate)
     model.train(False)
 
-    bound, logits_all, a_all = infer(model, eval_loader)
+    bound, logits_all, _ = infer(model, eval_loader)
     print('\tupper bound: %.2f' % (100 * bound))
 
     pdb.set_trace()
