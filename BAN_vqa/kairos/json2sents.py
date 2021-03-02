@@ -23,8 +23,21 @@ def process(fpath):
         if len(ent) == 0:
             continue
         offset = sent["offset"]
-        count = 1
         new_sent = sent["text"]
+        new_ent = []
+        for i in range(len(ent)):
+            overlap = False
+            for j in range(len(new_ent)):
+                if not (ent[i]["offset"] + ent[i]["length"] < new_ent[j]["offset"] or ent[i]["offset"] > new_ent[j]["offset"] + new_ent[j]["length"]):
+                    overlap = True
+                    break
+            if overlap:
+                if ent[i]["length"] > new_ent[j]["length"]:
+                    new_ent[j] = ent[i]
+            else:
+                new_ent.append(ent[i])
+
+        count = 1
         for e in ent:
             if e["text"] == '':
                 continue
@@ -36,6 +49,8 @@ def process(fpath):
         results.append(new_sent)
 
     return results
+
+
 
 
 if __name__ == "__main__":
