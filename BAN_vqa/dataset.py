@@ -748,6 +748,7 @@ class KairosFeatureDataset(Dataset):
             self.pos_boxes = np.array(hf.get('pos_boxes'))
 
         self.topic_doc_json = json.load(open(f"data/{dataset}/topic_doc_map.json", 'r'))
+        pdb.set_trace()
         self.entries = _load_kairos(dataset, self.img_id2idx, self.bbox, self.pos_boxes, self.topic_doc_json)
         self.tokenize()
         self.tensorize(self.num_ans_candidates)
