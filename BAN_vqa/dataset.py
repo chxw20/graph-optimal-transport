@@ -667,11 +667,15 @@ def _load_kairos(dataset, img_id2idx, bbox, pos_boxes, topic_doc_json, topic=Non
 
                 for entity_i, entity in enumerate(entities):
                     info, phrase = entity.split(' ', 1)
-                    entity_id = int(re.findall(pattern_no, info)[0])
+                    try:
+                        entity_id = int(re.findall(pattern_no, info)[0])
+                    except:
+                        print("entity_idx = {entity_idx}, entity = {phrase} \n\tsentence = {sentence}")
+                        raise Exception("entry creation failed")
                     entity_type = info.split('/')[2:]
 
                     entity_idx = utils.find_sublist(sentence.split(' '), phrase.split(' '))
-                    assert 0 <= entity_idx, f"\tentity_idx = {entity_idx}, entity = {phrase} \n\tsentence = {sentence}"
+                    assert 0 <= entity_idx, f"entity_idx = {entity_idx}, entity = {phrase} \n\tsentence = {sentence}"
 
                     if not entity_id in target_bboxes:
                         if entity_id >= 0:
@@ -694,7 +698,7 @@ def _load_kairos(dataset, img_id2idx, bbox, pos_boxes, topic_doc_json, topic=Non
                 except:
                     print(idx, sent_id, sentence, sent)
                     raise Exception("entry creation failed")
-                    
+
                 entries.append(entry)
 
 
