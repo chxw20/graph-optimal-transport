@@ -38,7 +38,7 @@ def process(fpath):
                 new_ent.append(ent[i])
 
         count = 1
-        for e in ent:
+        for e in new_ent:
             if e["text"] == '':
                 continue
             l = e["offset"] - offset
