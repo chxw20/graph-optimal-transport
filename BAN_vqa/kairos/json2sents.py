@@ -37,7 +37,7 @@ def process(fpath):
                     new_ent[j] = ent[i]
             else:
                 new_ent.append(ent[i])
-
+        new_ent = sorted(new_ent, key=lambda e: e["offset"])
         count = 1
         for e in new_ent:
             if e["text"] == '':
