@@ -61,6 +61,8 @@ def infer(model, dataloader):
 
     upper_bound = upper_bound / N
 
+    pdb.set_trace()
+
     return upper_bound, torch.cat(logits_all, dim=0), torch.cat(a_all, dim=0)
 
 
@@ -95,7 +97,5 @@ if __name__ == '__main__':
 
     bound, logits_all, _ = infer(model, eval_loader)
     print('\tupper bound: %.2f' % (100 * bound))
-
-    pdb.set_trace()
 
     np.save(logits_all.detach().cpu().numpy(), f"data/{args.task}/results.npy")
