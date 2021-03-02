@@ -27,6 +27,7 @@ def gen_xml(task, fnames):
 
     type_map = dict([(t, flickr_ent_type_map[kairos_to_flickr_ent_map[t]]) for t in kairos_to_flickr_ent_map])
 
+    ent_idx = 1
     for fname in fnames:
         data = json.load(open(f"data/{task}/json/{fname}"))
         imgid2ents = defaultdict(list)
@@ -43,12 +44,16 @@ def gen_xml(task, fnames):
                     continue
                 obj = ET.SubElement(data, "object")
                 name = ET.SubElement(obj, "name")
-                name.text = str(type_map[ent["type"]])
+                # name.text = str(type_map[ent["type"]])
+                name.text = str(ent_idx)
+                ent_idx += 1
                 bndbox = ET.SubElement(obj, "bndbox")
                 xmin, ymin, xmax, ymax = ET.SubElement(bndbox, "xmin"), ET.SubElement(bndbox, "ymin"), ET.SubElement(bndbox, "xmax"), ET.SubElement(bndbox, "ymax")
                 xmin.text, ymin.text, xmax.text, ymax.text = [str(x) for x in ent["bbox"]]
             xmlstr = minidom.parseString(ET.tostring(data)).toprettyxml(indent='\t')
             open(f"data/{task}/annotations/{img_id}.xml", 'w').write(xmlstr)
+
+    print(f"text start entity = {ent_idx}")
 
 
 def create_topic_doc_map(task):
