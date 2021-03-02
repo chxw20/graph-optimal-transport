@@ -27,7 +27,6 @@ def gen_xml(task, fnames):
 
     type_map = dict([(t, flickr_ent_type_map[kairos_to_flickr_ent_map[t]]) for t in kairos_to_flickr_ent_map])
 
-    ent_idx = 1
     for fname in fnames:
         data = json.load(open(f"data/{task}/json/{fname}"))
         imgid2ents = defaultdict(list)
@@ -35,6 +34,7 @@ def gen_xml(task, fnames):
             img_id = ent["id"].split('-')[1] + '-f' + str(int(ent["id"].split('-')[2].replace('f', '')) + 1)
             imgid2ents[img_id].append(ent)
         for img_id in imgid2ents:
+            ent_idx = 1
             # xml_fname = img_id + ".xml"
             data = ET.Element("annotation")
             img_fname = ET.SubElement(data, "filename")
