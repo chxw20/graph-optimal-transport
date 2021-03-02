@@ -670,7 +670,7 @@ def _load_kairos(dataset, img_id2idx, bbox, pos_boxes, topic_doc_json, topic=Non
                     try:
                         entity_id = int(re.findall(pattern_no, info)[0])
                     except:
-                        print("entity_idx = {entity_idx}, entity = {phrase} \n\tsentence = {sentence}")
+                        print(f"entity_idx = {entity_idx}, entity = {phrase} \n\tsentence = {sentence}")
                         raise Exception("entry creation failed")
                     entity_type = info.split('/')[2:]
 
