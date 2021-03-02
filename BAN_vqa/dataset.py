@@ -608,7 +608,7 @@ def _load_kairos(dataset, img_id2idx, bbox, pos_boxes, topic_doc_json, topic=Non
     dataroot: root path of dataset
     name: 'train', 'val', 'test-dev2015', test2015'
     """
-    pattern_phrase = r'\[(.*?)\]'
+    pattern_phrase = r'\[\/EN\#(.*?)\]'
     pattern_no = r'\/EN\#(\d+)'
 
     missing_entity_count = dict()
@@ -666,6 +666,7 @@ def _load_kairos(dataset, img_id2idx, bbox, pos_boxes, topic_doc_json, topic=Non
                 # pdb.set_trace()
 
                 for entity_i, entity in enumerate(entities):
+                    entity = "EN#" + entity
                     info, phrase = entity.split(' ', 1)
                     try:
                         entity_id = int(re.findall(pattern_no, info)[0])
