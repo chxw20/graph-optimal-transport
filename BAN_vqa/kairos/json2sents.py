@@ -32,7 +32,8 @@ def process(fpath):
                     overlap = True
                     break
             if overlap:
-                if ent[i]["length"] > new_ent[j]["length"]:
+                # print(ent[i]["text"], " ======= ", new_ent[j]["text"])
+                if ent[i]["length"] < new_ent[j]["length"]:
                     new_ent[j] = ent[i]
             else:
                 new_ent.append(ent[i])
