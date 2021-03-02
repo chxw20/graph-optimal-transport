@@ -63,7 +63,7 @@ def create_topic_doc_map(task):
                 topic = '_'.join(line[1].split('_')[:-1])
                 topic2doc[topic].append(line[0])
 
-    topic2doc["test"] = topic2doc["Ansbach_Bombing_Germany_July_2016"] # test
+    topic2doc["test"] = topic2doc["Boston_Marathon_Bombing_April_2013"] # test
 
     with open(f"data/{task}/topic_doc_map.json", 'w') as f:
         json.dump(topic2doc, f)
