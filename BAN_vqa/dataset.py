@@ -683,7 +683,7 @@ def _load_kairos(topic, img_id2idx, bbox, pos_boxes, topic_doc_json):
                 if 0 == len(entity_ids):
                     continue
 
-                entries.append(_create_kairos_entry(idx, sentence, entity_indices, target_indices, entity_ids, entity_types))
+                entries.append(_create_kairos_entry(idx, sent_id, sentence, entity_indices, target_indices, entity_ids, entity_types))
 
     if 0 < len(missing_entity_count.keys()):
         print('missing_entity_count=')
@@ -694,11 +694,12 @@ def _load_kairos(topic, img_id2idx, bbox, pos_boxes, topic_doc_json):
 
 
 # idx, sentence, entity_indices, target_indices, entity_ids, entity_types
-def _create_kairos_entry(img, sentence, entity_indices, target_indices, entity_ids, entity_types):
-    ent_types = ["ABS", "AML", "BAL", "BOD", "COM", "FAC", "GPE", "INF", "LAW",
-                 "LOC", "MHI", "MON", "NAT", "ORG", "PER", "PLA", "PTH", "RES",
-                 "SEN", "SID", "TTL", "VAL", "VEH", "WEA"]
-    type_map = dict([(f"kairos:Primitives/Entities/{t}", i) for (i, t) in enumerate(ent_types)])
+def _create_kairos_entry(img, sent_id, sentence, entity_indices, target_indices, entity_ids, entity_types):
+    # ent_types = ["ABS", "AML", "BAL", "BOD", "COM", "FAC", "GPE", "INF", "LAW",
+    #              "LOC", "MHI", "MON", "NAT", "ORG", "PER", "PLA", "PTH", "RES",
+    #              "SEN", "SID", "TTL", "VAL", "VEH", "WEA"]
+    # type_map = dict([(f"kairos:Primitives/Entities/{t}", i) for (i, t) in enumerate(ent_types)])
+    type_map = {'people':0,'clothing':1,'bodyparts':2,'animals':3,'vehicles':4,'instruments':5,'scene':6,'other':7}
     MAX_TYPE_NUM = 5
     for i, entity_type in enumerate(entity_types):
         assert MAX_TYPE_NUM >= len(entity_type)
@@ -706,6 +707,7 @@ def _create_kairos_entry(img, sentence, entity_indices, target_indices, entity_i
         entity_types[i] += [-1] * (MAX_TYPE_NUM-len(entity_type))
     entry = {
         'image'          : img,
+        'sent_id'        : sent_id,
         'sentence'       : sentence,
         'entity_indices' : entity_indices,
         'target_indices' : target_indices,
