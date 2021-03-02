@@ -663,7 +663,7 @@ def _load_kairos(dataset, img_id2idx, bbox, pos_boxes, topic_doc_json, topic=Non
                 target_indices = []
                 entity_ids = []
                 entity_types = []
-                pdb.set_trace()
+                # pdb.set_trace()
 
                 for entity_i, entity in enumerate(entities):
                     info, phrase = entity.split(' ', 1)
@@ -748,7 +748,7 @@ class KairosFeatureDataset(Dataset):
             self.pos_boxes = np.array(hf.get('pos_boxes'))
 
         self.topic_doc_json = json.load(open(f"data/{dataset}/topic_doc_map.json", 'r'))
-        pdb.set_trace()
+        # pdb.set_trace()
         self.entries = _load_kairos(dataset, self.img_id2idx, self.bbox, self.pos_boxes, self.topic_doc_json)
         self.tokenize()
         self.tensorize(self.num_ans_candidates)
