@@ -46,7 +46,8 @@ def infer(model, dataloader):
         p = p.cuda()
         e = e.cuda()
         a = a.cuda()
-        _, logits, _ = model(v, b, p, e, None)
+        _, logits, gw = model(v, b, p, e, None)
+        pdb.set_trace()
         n_obj = logits.size(2)
         logits.squeeze_()
 
@@ -94,6 +95,8 @@ if __name__ == '__main__':
 
     eval_loader =  DataLoader(eval_dset, batch_size, shuffle=False, num_workers=1, collate_fn=utils.trim_collate)
     model.train(False)
+
+    pdb.set_trace()
 
     bound, logits_all, _ = infer(model, eval_loader)
     print('\tupper bound: %.2f' % (100 * bound))
