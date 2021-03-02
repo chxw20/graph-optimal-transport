@@ -661,6 +661,7 @@ def _load_kairos(dataset, img_id2idx, bbox, pos_boxes, topic_doc_json, topic=Non
                 target_indices = []
                 entity_ids = []
                 entity_types = []
+                pdb.set_trace()
 
                 for entity_i, entity in enumerate(entities):
                     info, phrase = entity.split(' ', 1)
