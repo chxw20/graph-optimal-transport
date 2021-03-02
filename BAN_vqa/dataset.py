@@ -671,7 +671,10 @@ def _load_kairos(dataset, img_id2idx, bbox, pos_boxes, topic_doc_json, topic=Non
                     entity_type = info.split('/')[2:]
 
                     entity_idx = utils.find_sublist(sentence.split(' '), phrase.split(' '))
-                    assert 0 <= entity_idx, f"entity_idx = {entity_idx}"
+                    try:
+                        assert 0 <= entity_idx, f"entity_idx = {entity_idx}"
+                    except:
+                        continue
 
                     if not entity_id in target_bboxes:
                         if entity_id >= 0:
