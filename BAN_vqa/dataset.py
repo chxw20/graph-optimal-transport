@@ -680,7 +680,7 @@ def _load_kairos(dataset, img_id2idx, bbox, pos_boxes, topic_doc_json, topic=Non
                         assert 0 <= entity_idx, f"entity_idx = {entity_idx}, entity = {phrase} \nsentence = {sentence}, info = {info}"
                     except:
                         continue
-                        
+
                     if not entity_id in target_bboxes:
                         if entity_id >= 0:
                             missing_entity_count[entity_type[0]] = missing_entity_count.get(entity_type[0], 0) + 1
@@ -809,6 +809,7 @@ class KairosFeatureDataset(Dataset):
                 target_tensors.append(target_tensor)
                 entry['entity_ids'].append(0)
             # padding entity_indices with non-overlapping indices
+            entry['entity_indices'] = [x for x in entry['entity_indices'] if x < max_length]
             entry['entity_indices'] += [x for x in range(max_length) if x not in entry['entity_indices']]
             entry['entity_indices'] = entry['entity_indices'][:max_entities]
             entry['target'] = torch.cat(target_tensors, 0)
