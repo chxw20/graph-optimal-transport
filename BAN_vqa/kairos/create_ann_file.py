@@ -73,3 +73,4 @@ if __name__ == "__main__":
 
     args = parse_args()
     gen_xml(args.task, os.listdir(f"data/{args.task}/json"))
+    create_topic_doc_map(args.task)
