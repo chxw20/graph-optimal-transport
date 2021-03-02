@@ -15,7 +15,8 @@ import utils
 import pdb
 
 GPUID = 0
-os.environ["CUDA_VISIBLE_DEVICES"] = str(GPUID)
+if os.getenv("CUDA_VISIBLE_DEVICES") is None:
+    os.environ["CUDA_VISIBLE_DEVICES"] = str(GPUID)
 
 def parse_args():
     parser = argparse.ArgumentParser()
