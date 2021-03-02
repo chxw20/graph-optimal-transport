@@ -675,9 +675,8 @@ def _load_kairos(dataset, img_id2idx, bbox, pos_boxes, topic_doc_json, topic=Non
                         raise Exception("entry creation failed")
                     entity_type = info.split('/')[2:]
 
-                    try:
-                        entity_idx = utils.find_sublist(sentence.split(' '), phrase.split(' '))
-                    except:
+                    entity_idx = utils.find_sublist(sentence.split(' '), phrase.split(' '))
+                    if entity_idx <= 0:
                         phrase = phrase + '.'
                         entity_idx = utils.find_sublist(sentence.split(' '), phrase.split(' '))
                     assert 0 <= entity_idx, f"entity_idx = {entity_idx}, entity = {phrase} \nsentence = {sentence}, info = {info}"
