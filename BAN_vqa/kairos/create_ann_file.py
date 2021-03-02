@@ -51,6 +51,24 @@ def gen_xml(task, fnames):
             open(f"data/{task}/annotations/{img_id}.xml", 'w').write(xmlstr)
 
 
+def create_topic_doc_map(task):
+
+    topic2doc = defaultdict(list)
+    primitives_list = os.listdir(f"data/{task}/json_output/primitives")
+    primitives_list = [fname.replace(".json", '') for fname in primitives_list]
+    with open(f"data/{task}/topic_mapping.txt", 'r') as f:
+        for line in f:
+            line = line.strip().split('\t')
+            if line[0] in primitives_list:
+                topic = '_'.join(line[1].split('_')[:-1])
+                topic2doc[topic].append(line[0])
+
+    topic2doc["test"] = topic2doc["Ansbach_Bombing_Germany_July_2016"] # test
+
+    with open(f"data/{task}/topic_doc_map.json", 'w') as f:
+        json.dump(topic2doc, f)
+
+
 if __name__ == "__main__":
 
     args = parse_args()

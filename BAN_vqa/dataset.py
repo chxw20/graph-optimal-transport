@@ -599,7 +599,7 @@ class Flickr30kFeatureDataset(Dataset):
 
 # =================================================================================================
 
-def _load_kairos(topic, img_id2idx, bbox, pos_boxes, topic_doc_json):
+def _load_kairos(dataset, img_id2idx, bbox, pos_boxes, topic_doc_json, topic=None):
     """Load entries
 
     img_id2idx: dict {img_id -> val} val can be used to retrieve image or features
@@ -613,13 +613,17 @@ def _load_kairos(topic, img_id2idx, bbox, pos_boxes, topic_doc_json):
     multibox_entity_count = 0
 
     entries = []
+
+    if topic is None:
+        topic = dataset
+
     for image_id, idx in img_id2idx.items():
 
-        anno_file = f'data/{topic}/annotations/{image_id}.xml'
+        anno_file = f'data/{dataset}/annotations/{image_id}.xml'
 
         for phrase_id in topic_doc_json[topic]:
 
-            phrase_file = f'data/{topic}/ent_sents/{phrase_id}.txt'
+            phrase_file = f'data/{dataset}/ent_sents/{phrase_id}.txt'
 
             with open(phrase_file, 'r', encoding='utf-8') as f:
                 sents = [x.strip() for x in f]
@@ -740,7 +744,8 @@ class KairosFeatureDataset(Dataset):
             self.bbox = np.array(hf.get('image_bb'))
             self.pos_boxes = np.array(hf.get('pos_boxes'))
 
-        self.entries = _load_kairos(dataset, self.img_id2idx, self.bbox, self.pos_boxes)
+        self.topic_doc_json = json.load(f"data/{dataset}/topic_doc_map.json")
+        self.entries = _load_kairos(dataset, self.img_id2idx, self.bbox, self.pos_boxes, topic_doc_json)
         self.tokenize()
         self.tensorize(self.num_ans_candidates)
         self.v_dim = self.features.size(1)
