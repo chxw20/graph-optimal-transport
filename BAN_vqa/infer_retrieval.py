@@ -20,14 +20,14 @@ if os.getenv("CUDA_VISIBLE_DEVICES") is None:
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--task', type=str, default='flickr', help='task name')
+    parser.add_argument('--task', type=str, default='flickr30k', help='task name')
     parser.add_argument('--dset', type=str, default='scenario_data', help='dataset name')
     parser.add_argument('--num_hid', type=int, default=1280)
     parser.add_argument('--model', type=str, default='ban')
     parser.add_argument('--op', type=str, default='c')
     parser.add_argument('--gamma', type=int, default=8)
     parser.add_argument('--input', type=str, default='saved_models/ban')
-    parser.add_argument('--epoch', type=int, default=12)
+    parser.add_argument('--epoch', type=int, default=7)
     parser.add_argument('--batch_size', type=int, default=256)
     args = parser.parse_args()
     return args
