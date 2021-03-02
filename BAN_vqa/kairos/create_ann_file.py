@@ -15,10 +15,17 @@ def parse_args():
 
 def gen_xml(task, fnames):
 
-    ent_types = ["ABS", "AML", "BAL", "BOD", "COM", "FAC", "GPE", "INF", "LAW",
-                 "LOC", "MHI", "MON", "NAT", "ORG", "PER", "PLA", "PTH", "RES",
-                 "SEN", "SID", "TTL", "VAL", "VEH", "WEA"]
-    type_map = dict([(f"kairos:Primitives/Entities/{t}", i) for (i, t) in enumerate(ent_types)])
+    # kairos_ent_types = ["ABS", "AML", "BAL", "BOD", "COM", "FAC", "GPE", "INF", "LAW",
+    #                     "LOC", "MHI", "MON", "NAT", "ORG", "PER", "PLA", "PTH", "RES",
+    #                     "SEN", "SID", "TTL", "VAL", "VEH", "WEA"]
+    flickr_ent_type_map = {'people':0,'clothing':1,'bodyparts':2,'animals':3,'vehicles':4,'instruments':5,'scene':6,'other':7}
+    with open("data/kairos_flickr_ent_mapping.txt", 'r') as f:
+        kairos_to_flickr_ent_map = {}
+        for line in f:
+            line = line.strip().split('\t')
+            kairos_to_flickr_ent_map[line[0]] = line[1]
+
+    type_map = dict([(t, flickr_ent_type_map[kairos_to_flickr_ent_map[t]]) for t in kairos_to_flickr_ent_map])
 
     for fname in fnames:
         data = json.load(open(f"data/{task}/json/{fname}"))
