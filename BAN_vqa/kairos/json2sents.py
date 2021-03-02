@@ -20,6 +20,8 @@ def process(fpath):
     results = []
     for sent in sents:
         ent = [e for e in ents if e["id"].startswith(sent["id"] + '-')]
+        if len(ent) == 0:
+            continue
         offset = sent["offset"]
         count = 1
         new_sent = sent["text"]
