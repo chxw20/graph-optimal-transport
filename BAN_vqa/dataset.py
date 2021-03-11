@@ -749,6 +749,7 @@ class KairosFeatureDataset(Dataset):
 
         self.img_id2idx = cPickle.load(
             open(os.path.join(dataroot, '%s_imgid2idx.pkl' % name), 'rb'))
+        self.img_idx2id = dict([(val, key) for (key, val) in self.img_id2idx.items()])
 
         h5_path = os.path.join(dataroot, '%s.hdf5' % name)
 
@@ -831,7 +832,7 @@ class KairosFeatureDataset(Dataset):
         entity_types = entry['entity_types']
 
         # return features, spatials, sentence, e_pos, e_num, target, entity_ids, entity_types
-        return features, spatials, sentence, e_pos, e_num, entity_ids, entity_types
+        return features, spatials, sentence, e_pos, e_num, entity_ids, entity_types, torch.LongTensor(entry['image'])
 
     def __len__(self):
         return len(self.entries)

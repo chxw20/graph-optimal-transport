@@ -14,6 +14,7 @@ import base_model
 import utils
 import pdb
 from tqdm import tqdm
+from collections import defaultdict
 
 GPUID = 0
 if os.getenv("CUDA_VISIBLE_DEVICES") is None:
@@ -36,10 +37,9 @@ def parse_args():
 
 @torch.no_grad()
 def infer(model, dataloader):
-    upper_bound = 0
-    N = 0
-    logits_all = []
-    for i, (v, b, p, e, n, idx, types) in tqdm(enumerate(dataloader)):
+    results = defaultdict(list)
+    # doc_ent_id: [(img_id, box_id, match_prob)]
+    for i, (v, b, p, e, n, idx, types, img_ids) in tqdm(enumerate(dataloader)):
         v = v.cuda()
         b = b.cuda()
         p = p.cuda()
@@ -52,16 +52,17 @@ def infer(model, dataloader):
 
         merged_logits = torch.cat(tuple(logits[j, :, :n[j][0]] for j in range(n.size(0))), -1).permute(1, 0)
 
-        logits_all.append(merged_logits)
+        prob, inds = merged_logits.softmax(dim=1).max(dim=1)
+        prob, inds = prob.detach().cpu().numpy(), inds.detach().cpu().numpy()
 
-        N += n.sum().float()
-        upper_bound += merged_a.max(-1, False)[0].sum().item()
+        doc_ent_ids = idx[idx != 0]
+        for doc_ent_id, img_id, box_id, match_prob in zip(doc_ent_ids, img_ids, inds, prob):
+            results[doc_ent_id].append((img_id, box_id, match_prob))
 
-    upper_bound = upper_bound / N
 
     pdb.set_trace()
 
-    return upper_bound, torch.cat(logits_all, dim=0)
+    return results
 
 
 
@@ -95,7 +96,6 @@ if __name__ == '__main__':
 
     pdb.set_trace()
 
-    bound, logits_all = infer(model, eval_loader)
-    print('\tupper bound: %.2f' % (100 * bound))
+    results = infer(model, eval_loader)
 
-    np.save(logits_all.detach().cpu().numpy(), f"data/{args.task}/results.npy")
+    np.save(results, f"data/{args.task}/results.npy")
