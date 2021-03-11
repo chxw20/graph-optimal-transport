@@ -62,7 +62,7 @@ def gen_coref(task, fnames, results, dataset, p_th=0.5, iou_th=0.5):
             if p < p_th:
                 continue
             pdb.set_trace()
-            feat_bbox = dataset.spatials[dataset.pos_boxes[img_id][0]:dataset.pos_boxes[img_id][1]][box_id]
+            feat_bbox = dataset.bbox[dataset.pos_boxes[img_id][0]:dataset.pos_boxes[img_id][1]][box_id]
             matched_bboxes = []
             for i, dst_bbox in enumerate(imgid2bboxes[img_id]):
                 if utils.calculate_iou(feat_bbox, np.array(dst_bbox)) > iou_th:
