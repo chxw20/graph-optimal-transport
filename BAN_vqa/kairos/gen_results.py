@@ -29,8 +29,8 @@ def parse_args():
 
 def gen_coref(task, fnames, results, dataset, p_th=0.5, iou_th=0.5):
 
-    img_id2idx = pickle.load(open(f"data/{task}/infer_imgid2idx.pkl", "rb"))
-    img_idx2id = dict([(v, k) for (k, v) in img_id2idx.items()])
+    img_idx2id = pickle.load(open(f"data/{task}/infer_imgid2idx.pkl", "rb"))
+    # img_idx2id = dict([(v, k) for (k, v) in img_id2idx.items()])
 
     imgid2ents = defaultdict(list)
 
