@@ -18,7 +18,8 @@ from collections import defaultdict
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dset", type=str, default="test", help="topic name")
+    parser.add_argument("--dset", type=str, default="test", help="dataset name")
+    parser.add_argument("--topic", type=str, default="test", help="topic name")
     parser.add_argument("--task", type=str, default="flickr30k", help="task name")
     parser.add_argument("--p_th", type=float, default=0.5, help="threshold for entity matching")
     parser.add_argument("--iou_th", type=float, default=0.5, help="threshold for iou")
@@ -27,7 +28,7 @@ def parse_args():
 
 
 
-def gen_coref(task, fnames, results, dataset, p_th=0.5, iou_th=0.5):
+def gen_coref(task, topic, fnames, results, dataset, p_th=0.5, iou_th=0.5):
 
     img_idx2id = pickle.load(open(f"data/{task}/infer_imgid2idx.pkl", "rb"))
     # img_idx2id = dict([(v, k) for (k, v) in img_id2idx.items()])
@@ -56,7 +57,7 @@ def gen_coref(task, fnames, results, dataset, p_th=0.5, iou_th=0.5):
         imgid2entids[img_id] = dst_entids
 
     corefs = []
-    doc_entid_map = json.load(open(f"data/{task}/json_output/doc_entid_map.json"))
+    doc_entid_map = json.load(open(f"data/{task}/json_output/{topic}.json"))
     for (doc_ent_id, res) in tqdm(results.items()):
         if doc_ent_id not in doc_entid_map:
             continue
@@ -93,7 +94,7 @@ if __name__ == "__main__":
     results = np.load(f"data/{args.dset}/results.npy", allow_pickle=True).item()
 
     fnames = os.listdir(f"data/{args.dset}/json")
-    corefs = gen_coref(args.dset, fnames, results, eval_dset, args.p_th, args.iou_th)
+    corefs = gen_coref(args.dset, args.topic, fnames, results, eval_dset, args.p_th, args.iou_th)
     with open(f"data/{args.dset}/results.txt", 'w') as f:
         for (text_id, img_id, p) in corefs:
             f.write(f"{text_id}\t{img_id}\t{p:.4f}\n")

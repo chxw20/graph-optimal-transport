@@ -99,10 +99,13 @@ if __name__ == "__main__":
         name = 1
         doc_entid_map = dict()
         topic_fnames = [f"{doc}.json" for doc in topic2docs[topic] if f"{doc}.json" in fnames]
+        if topic[-4:] == "_spa":
+            assert topic_fnames == []
+            continue
         for fname in topic_fnames:
             sents, name, doc_entid_map = process(f"data/{dataset}/json_output/primitives/{fname}", name, doc_entid_map)
             with open(f"data/{dataset}/json_output/ent_sents/{fname.replace('json', 'txt')}", 'w') as f:
                 for line in sents:
                     f.write(line + '\n')
-        with open(f"data/{dataset}/json_output/doc_entid_map.json", 'w') as f:
+        with open(f"data/{dataset}/json_output/{topic.replace('_eng', '')}.json", 'w') as f:
             json.dump(doc_entid_map, f)
