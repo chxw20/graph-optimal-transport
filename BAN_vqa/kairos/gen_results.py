@@ -61,7 +61,8 @@ def gen_coref(task, fnames, results, dataset, p_th=0.5, iou_th=0.5):
         for (img_id, box_id, p) in res:
             if p < p_th:
                 continue
-            feat_bbox = dataset.spatials[dataset.pos_boxes[img_id][0]:dataset.pos_boxes[img_id][1], box_id]
+            pdb.set_trace()
+            feat_bbox = dataset.spatials[dataset.pos_boxes[img_id][0]:dataset.pos_boxes[img_id][1]][box_id]
             matched_bboxes = []
             for i, dst_bbox in enumerate(imgid2bboxes[img_id]):
                 if utils.calculate_iou(feat_bbox, np.array(dst_bbox)) > iou_th:
