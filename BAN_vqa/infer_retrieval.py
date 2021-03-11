@@ -61,7 +61,7 @@ def infer(model, dataloader):
             results[doc_ent_id].append((img_id, box_id, match_prob))
 
 
-    pdb.set_trace()
+    # pdb.set_trace()
 
     return results
 
@@ -95,8 +95,8 @@ if __name__ == '__main__':
     eval_loader =  DataLoader(eval_dset, batch_size, shuffle=False, num_workers=1, collate_fn=utils.trim_collate)
     model.train(False)
 
-    pdb.set_trace()
+    # pdb.set_trace()
 
     results = infer(model, eval_loader)
 
-    np.save(f"data/{args.task}/results.npy", results)
+    np.save(f"data/{args.dset}/results.npy", results)
