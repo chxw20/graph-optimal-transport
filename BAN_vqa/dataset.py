@@ -819,6 +819,8 @@ class KairosFeatureDataset(Dataset):
             entry['entity_ids'] = torch.LongTensor(entry['entity_ids'])
             entry['entity_types'] = torch.LongTensor(entry['entity_types'])
 
+            entry['image'] = torch.LongTensor([entry['image']])
+
     def __getitem__(self, index):
         entry = self.entries[index]
         features = self.features[self.pos_boxes[entry['image']][0]:self.pos_boxes[entry['image']][1], :]
@@ -832,7 +834,7 @@ class KairosFeatureDataset(Dataset):
         entity_types = entry['entity_types']
 
         # return features, spatials, sentence, e_pos, e_num, target, entity_ids, entity_types
-        return features, spatials, sentence, e_pos, e_num, entity_ids, entity_types, torch.LongTensor(entry['image'])
+        return features, spatials, sentence, e_pos, e_num, entity_ids, entity_types, entry['image']
 
     def __len__(self):
         return len(self.entries)
