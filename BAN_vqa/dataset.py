@@ -791,7 +791,7 @@ class KairosFeatureDataset(Dataset):
             phrase = torch.from_numpy(np.array(entry['p_token']))
             entry['p_token'] = phrase
 
-            assert len(entry['target_indices']) == entry['entity_num']
+            # assert len(entry['target_indices']) == entry['entity_num']
             assert len(entry['entity_indices']) == entry['entity_num']
 
             # target_tensors = []
