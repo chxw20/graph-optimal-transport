@@ -39,23 +39,20 @@ def infer(model, dataloader):
     upper_bound = 0
     N = 0
     logits_all = []
-    a_all = []
-    for i, (v, b, p, e, n, a, idx, types) in tqdm(enumerate(dataloader)):
+    for i, (v, b, p, e, n, idx, types) in tqdm(enumerate(dataloader)):
         v = v.cuda()
         b = b.cuda()
         p = p.cuda()
         e = e.cuda()
-        a = a.cuda()
+
         _, logits, gw = model(v, b, p, e, None)
         pdb.set_trace()
         n_obj = logits.size(2)
         logits.squeeze_()
 
         merged_logits = torch.cat(tuple(logits[j, :, :n[j][0]] for j in range(n.size(0))), -1).permute(1, 0)
-        merged_a = torch.cat(tuple(a[j, :n[j][0], :n_obj] for j in range(n.size(0))), 0)
 
         logits_all.append(merged_logits)
-        a_all.append(merged_a)
 
         N += n.sum().float()
         upper_bound += merged_a.max(-1, False)[0].sum().item()
@@ -64,7 +61,7 @@ def infer(model, dataloader):
 
     pdb.set_trace()
 
-    return upper_bound, torch.cat(logits_all, dim=0), torch.cat(a_all, dim=0)
+    return upper_bound, torch.cat(logits_all, dim=0)
 
 
 
@@ -98,7 +95,7 @@ if __name__ == '__main__':
 
     pdb.set_trace()
 
-    bound, logits_all, _ = infer(model, eval_loader)
+    bound, logits_all = infer(model, eval_loader)
     print('\tupper bound: %.2f' % (100 * bound))
 
     np.save(logits_all.detach().cpu().numpy(), f"data/{args.task}/results.npy")

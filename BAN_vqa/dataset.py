@@ -621,7 +621,7 @@ def _load_kairos(dataset, img_id2idx, bbox, pos_boxes, topic_doc_json, topic=Non
 
     for image_id, idx in img_id2idx.items():
 
-        anno_file = f'data/{dataset}/annotations/{image_id}.xml'
+        # anno_file = f'data/{dataset}/annotations/{image_id}.xml'
 
         for phrase_id in topic_doc_json[topic]:
 
@@ -631,36 +631,36 @@ def _load_kairos(dataset, img_id2idx, bbox, pos_boxes, topic_doc_json, topic=Non
                 sents = [x.strip() for x in f]
 
             # Parse Annotation
-            root = parse(anno_file).getroot()
-            obj_elems = root.findall('./object')
-            pos_box = pos_boxes[idx]
-            bboxes = bbox[pos_box[0]:pos_box[1]]
-            target_bboxes = {}
+            # root = parse(anno_file).getroot()
+            # obj_elems = root.findall('./object')
+            # pos_box = pos_boxes[idx]
+            # bboxes = bbox[pos_box[0]:pos_box[1]]
+            # target_bboxes = {}
 
-            for elem in obj_elems:
-                if elem.find('bndbox') == None or len(elem.find('bndbox')) == 0:
-                    continue
-                left = int(elem.findtext('./bndbox/xmin'))
-                top = int(elem.findtext('./bndbox/ymin'))
-                right = int(elem.findtext('./bndbox/xmax'))
-                bottom = int(elem.findtext('./bndbox/ymax'))
-                assert 0 <= left and 0 <= bottom, f"[{left}, {top}, {right}, {bottom}]"
+            # for elem in obj_elems:
+            #     if elem.find('bndbox') == None or len(elem.find('bndbox')) == 0:
+            #         continue
+            #     left = int(elem.findtext('./bndbox/xmin'))
+            #     top = int(elem.findtext('./bndbox/ymin'))
+            #     right = int(elem.findtext('./bndbox/xmax'))
+            #     bottom = int(elem.findtext('./bndbox/ymax'))
+            #     assert 0 <= left and 0 <= bottom, f"[{left}, {top}, {right}, {bottom}]"
 
-                for name in elem.findall('name'):
-                    entity_id = int(name.text)
-                    assert 0 < entity_id
-                    if not entity_id in target_bboxes:
-                        target_bboxes[entity_id] = []
-                    else:
-                        multibox_entity_count += 1
-                    target_bboxes[entity_id].append([left, top, right, bottom])
+            #     for name in elem.findall('name'):
+            #         entity_id = int(name.text)
+            #         assert 0 < entity_id
+            #         if not entity_id in target_bboxes:
+            #             target_bboxes[entity_id] = []
+            #         else:
+            #             multibox_entity_count += 1
+            #         target_bboxes[entity_id].append([left, top, right, bottom])
 
             # Parse Sentence
             for sent_id, sent in enumerate(sents):
                 sentence = utils.remove_annotations(sent)
                 entities = re.findall(pattern_phrase, sent)
                 entity_indices = []
-                target_indices = []
+                # target_indices = []
                 entity_ids = []
                 entity_types = []
                 # pdb.set_trace()
@@ -681,24 +681,23 @@ def _load_kairos(dataset, img_id2idx, bbox, pos_boxes, topic_doc_json, topic=Non
                     except:
                         continue
 
-                    if not entity_id in target_bboxes:
-                        if entity_id >= 0:
-                            missing_entity_count[entity_type[0]] = missing_entity_count.get(entity_type[0], 0) + 1
-                        # continue
+                    # if not entity_id in target_bboxes:
+                    #     if entity_id >= 0:
+                    #         missing_entity_count[entity_type[0]] = missing_entity_count.get(entity_type[0], 0) + 1
 
                     assert 0 < entity_id
 
                     entity_ids.append(entity_id)
                     entity_types.append(entity_type)
 
-                    target_idx = utils.get_match_index(target_bboxes[entity_id], bboxes)
+                    # target_idx = utils.get_match_index(target_bboxes[entity_id], bboxes)
                     entity_indices.append(entity_idx)
-                    target_indices.append(target_idx)
+                    # target_indices.append(target_idx)
 
                 if 0 == len(entity_ids):
                     continue
                 try:
-                    entry = _create_kairos_entry(idx, sent_id, sentence, entity_indices, target_indices, entity_ids, entity_types)
+                    entry = _create_kairos_entry(idx, f"{phrase_id}-s{sent_id}", sentence, entity_indices, entity_ids, entity_types)
                 except:
                     print(idx, sent_id, sentence, sent)
                     raise Exception("entry creation failed")
@@ -714,8 +713,8 @@ def _load_kairos(dataset, img_id2idx, bbox, pos_boxes, topic_doc_json, topic=Non
     return entries
 
 
-# idx, sentence, entity_indices, target_indices, entity_ids, entity_types
-def _create_kairos_entry(img, sent_id, sentence, entity_indices, target_indices, entity_ids, entity_types):
+# idx, sent_id, sentence, entity_indices, entity_ids, entity_types
+def _create_kairos_entry(img, sent_id, sentence, entity_indices, entity_ids, entity_types):
     # ent_types = ["ABS", "AML", "BAL", "BOD", "COM", "FAC", "GPE", "INF", "LAW",
     #              "LOC", "MHI", "MON", "NAT", "ORG", "PER", "PLA", "PTH", "RES",
     #              "SEN", "SID", "TTL", "VAL", "VEH", "WEA"]
@@ -731,7 +730,6 @@ def _create_kairos_entry(img, sent_id, sentence, entity_indices, target_indices,
         'sent_id'        : sent_id,
         'sentence'       : sentence,
         'entity_indices' : entity_indices,
-        'target_indices' : target_indices,
         'entity_ids'     : entity_ids,
         'entity_types'   : entity_types,
         'entity_num'     : len(entity_ids)}
@@ -796,23 +794,24 @@ class KairosFeatureDataset(Dataset):
             assert len(entry['target_indices']) == entry['entity_num']
             assert len(entry['entity_indices']) == entry['entity_num']
 
-            target_tensors = []
-            for i in range(entry['entity_num']):
-                target_tensor = torch.zeros(1, max_box)
-                if len(entry['target_indices'][i]) > 0:
-                    target_idx = torch.from_numpy(np.array(entry['target_indices'][i]))
-                    target_tensor = torch.zeros(max_box).scatter_(0, target_idx, 1).unsqueeze(0)
-                target_tensors.append(target_tensor)
-            assert len(target_tensors) <= max_entities, '> %d entities!' % max_entities
-            for i in range(max_entities - len(target_tensors)):
-                target_tensor = torch.zeros(1, max_box)
-                target_tensors.append(target_tensor)
-                entry['entity_ids'].append(0)
+            # target_tensors = []
+            # for i in range(entry['entity_num']):
+            #     target_tensor = torch.zeros(1, max_box)
+            #     if len(entry['target_indices'][i]) > 0:
+            #         target_idx = torch.from_numpy(np.array(entry['target_indices'][i]))
+            #         target_tensor = torch.zeros(max_box).scatter_(0, target_idx, 1).unsqueeze(0)
+            #     target_tensors.append(target_tensor)
+            # assert len(target_tensors) <= max_entities, '> %d entities!' % max_entities
+            # for i in range(max_entities - len(target_tensors)):
+            #     target_tensor = torch.zeros(1, max_box)
+            #     target_tensors.append(target_tensor)
+            #     entry['entity_ids'].append(0)
+            entry['entity_ids'] += [0] * (max_entities - len(entry['entity_ids']))
             # padding entity_indices with non-overlapping indices
             entry['entity_indices'] = [x for x in entry['entity_indices'] if x < max_length]
             entry['entity_indices'] += [x for x in range(max_length) if x not in entry['entity_indices']]
             entry['entity_indices'] = entry['entity_indices'][:max_entities]
-            entry['target'] = torch.cat(target_tensors, 0)
+            # entry['target'] = torch.cat(target_tensors, 0)
             # entity positions in (e) tensor
             entry['e_pos'] = torch.LongTensor(entry['entity_indices'])
             entry['e_num'] = torch.LongTensor([entry['entity_num']])
@@ -827,11 +826,12 @@ class KairosFeatureDataset(Dataset):
         sentence = entry['p_token']
         e_pos = entry['e_pos']
         e_num = entry['e_num']
-        target = entry['target']
+        # target = entry['target']
         entity_ids = entry['entity_ids']
         entity_types = entry['entity_types']
 
-        return features, spatials, sentence, e_pos, e_num, target, entity_ids, entity_types
+        # return features, spatials, sentence, e_pos, e_num, target, entity_ids, entity_types
+        return features, spatials, sentence, e_pos, e_num, entity_ids, entity_types
 
     def __len__(self):
         return len(self.entries)
