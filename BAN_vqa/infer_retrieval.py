@@ -99,4 +99,4 @@ if __name__ == '__main__':
 
     results = infer(model, eval_loader)
 
-    np.save(results, f"data/{args.task}/results.npy")
+    np.save(f"data/{args.task}/results.npy", results)
