@@ -46,7 +46,7 @@ def infer(model, dataloader):
         e = e.cuda()
 
         _, logits, gw = model(v, b, p, e, None)
-        pdb.set_trace()
+        # pdb.set_trace()
         n_obj = logits.size(2)
         logits.squeeze_()
 
