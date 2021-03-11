@@ -19,6 +19,7 @@ from collections import defaultdict
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--dset", type=str, default="test", help="topic name")
+    parser.add_argument("--task", type=str, default="flickr30k", help="task name")
     parser.add_argument("--p_th", type=float, default=0.5, help="threshold for entity matching")
     parser.add_argument("--iou_th", type=float, default=0.5, help="threshold for iou")
     args = parser.parse_args()
@@ -78,7 +79,7 @@ if __name__ == "__main__":
 
     args = parse_args()
 
-    dict_path = f"data/{args.dset}/dictionary.pkl"
+    dict_path = f"data/{args.task}/dictionary.pkl"
     dictionary = Dictionary.load_from_file(dict_path)
     eval_dset = KairosFeatureDataset("infer", dictionary, args.dset)
 
