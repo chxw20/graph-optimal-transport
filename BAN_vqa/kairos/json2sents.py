@@ -4,7 +4,7 @@ import os
 
 from collections import defaultdict
 
-def process(fpath, name=1):
+def process(fpath, name=1, doc_entid_map={}):
 
     flickr_ent_type_map = {'people':0,'clothing':1,'bodyparts':2,'animals':3,'vehicles':4,'instruments':5,'scene':6,'other':7}
     with open("data/kairos_flickr_ent_mapping.txt", 'r') as f:
@@ -21,6 +21,7 @@ def process(fpath, name=1):
     coref2name = {}
 
     results = []
+    # doc_entid_map = dict()
     for sent in sents:
         ent = [e for e in ents if e["id"].startswith(sent["id"] + '-')]
         if len(ent) == 0:
@@ -64,6 +65,7 @@ def process(fpath, name=1):
                 new_ent.append(ent[i])
 
         new_ent = sorted(new_ent, key=lambda e: e["offset"])
+        
         for e in new_ent:
             if e["text"] == '':
                 continue
@@ -71,9 +73,10 @@ def process(fpath, name=1):
             r = l + e["length"]
             new_sent = new_sent[:l] + f"[/EN#{e['ent_name']}/{kairos_to_flickr_ent_map[e['type']]} " + new_sent[l:r] + "]" + new_sent[r:]
             offset -= (8 + len(str(e["ent_name"])) + len(kairos_to_flickr_ent_map[e["type"]]))
+            doc_entid_map[e["ent_name"]] = e["id"]
         results.append(new_sent)
 
-    return results, name
+    return results, name, doc_entid_map
 
 
 
@@ -94,9 +97,12 @@ if __name__ == "__main__":
     for topic in topic2docs:
         print(f"processing topic {topic} ...")
         name = 1
+        doc_entid_map = dict()
         topic_fnames = [f"{doc}.json" for doc in topic2docs[topic] if f"{doc}.json" in fnames]
         for fname in topic_fnames:
-            sents, name = process(f"data/{dataset}/json_output/primitives/{fname}", name)
+            sents, name, doc_entid_map = process(f"data/{dataset}/json_output/primitives/{fname}", name, doc_entid_map)
             with open(f"data/{dataset}/json_output/ent_sents/{fname.replace('json', 'txt')}", 'w') as f:
                 for line in sents:
                     f.write(line + '\n')
+            with open(f"data/{dataset}/json_output/doc_entid_map.json", 'w') as f:
+                json.dump(doc_entid_map, f)
