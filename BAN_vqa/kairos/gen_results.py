@@ -57,7 +57,8 @@ def gen_coref(task, fnames, results, dataset, p_th=0.5, iou_th=0.5):
 
     corefs = []
     doc_entid_map = json.load(open(f"data/{task}/json_output/doc_entid_map.json"))
-    for (doc_ent_id, img_id, box_id, p) in tqdm(results.items()):
+    for (doc_ent_id, res) in tqdm(results.items()):
+        img_id, box_id, p = res
         if p < th:
             continue
         feat_bbox = dataset.spatials[dataset.pos_boxes[img_id][0]:dataset.pos_boxes[img_id][1], box_id]
