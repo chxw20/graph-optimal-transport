@@ -88,7 +88,7 @@ if __name__ == "__main__":
     results = np.load(f"data/{args.dset}/results.npy", allow_pickle=True).item()
 
     fnames = os.listdir(f"data/{args.dset}/json")
-    corefs = gen_coref(args.dset, fnames, results, dataset, args.p_th, args.iou_th)
+    corefs = gen_coref(args.dset, fnames, results, eval_dset, args.p_th, args.iou_th)
     with open(f"data/{args.dset}/results.txt", 'w') as f:
         for (text_id, img_id, p) in corefs:
             f.write(f"{text_id}\t{img_id}\t{p:.4f}\n")
