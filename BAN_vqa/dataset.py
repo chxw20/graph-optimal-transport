@@ -684,7 +684,7 @@ def _load_kairos(dataset, img_id2idx, bbox, pos_boxes, topic_doc_json, topic=Non
                     if not entity_id in target_bboxes:
                         if entity_id >= 0:
                             missing_entity_count[entity_type[0]] = missing_entity_count.get(entity_type[0], 0) + 1
-                        continue
+                        # continue
 
                     assert 0 < entity_id
 
