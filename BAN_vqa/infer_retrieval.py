@@ -56,6 +56,7 @@ def infer(model, dataloader):
         prob, inds = prob.detach().cpu().numpy(), inds.detach().cpu().numpy()
 
         doc_ent_ids = idx[idx != 0]
+        img_ids = img_ids.view(-1)
         for doc_ent_id, img_id, box_id, match_prob in zip(doc_ent_ids, img_ids, inds, prob):
             results[doc_ent_id].append((img_id, box_id, match_prob))
 
