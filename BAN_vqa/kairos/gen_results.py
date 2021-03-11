@@ -71,7 +71,7 @@ def gen_coref(task, fnames, results, dataset, p_th=0.5, iou_th=0.5):
                 continue
             matched_bboxes = sorted(matched_bboxes, key=lambda x: x[1], reverse=True)
             pdb.set_trace()
-            corefs.append((doc_entid_map[str(doc_ent_id)], imgid2entids[img_id][matched_bboxes[0][0]], p))
+            corefs.append((doc_entid_map[str(doc_ent_id.item())], imgid2entids[img_id][matched_bboxes[0][0]], p))
 
     return corefs
 

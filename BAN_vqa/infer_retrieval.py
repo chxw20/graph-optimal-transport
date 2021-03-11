@@ -58,7 +58,7 @@ def infer(model, dataloader):
         doc_ent_ids = idx[idx != 0]
         img_ids = img_ids.view(-1).detach().cpu().numpy()
         for doc_ent_id, img_id, box_id, match_prob in zip(doc_ent_ids, img_ids, inds, prob):
-            results[doc_ent_id].append((img_id, box_id, match_prob))
+            results[doc_ent_id.item()].append((img_id, box_id, match_prob))
 
 
     # pdb.set_trace()
