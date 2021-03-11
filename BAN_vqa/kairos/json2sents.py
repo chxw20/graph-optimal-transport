@@ -104,5 +104,5 @@ if __name__ == "__main__":
             with open(f"data/{dataset}/json_output/ent_sents/{fname.replace('json', 'txt')}", 'w') as f:
                 for line in sents:
                     f.write(line + '\n')
-            with open(f"data/{dataset}/json_output/doc_entid_map.json", 'w') as f:
-                json.dump(doc_entid_map, f)
+        with open(f"data/{dataset}/json_output/doc_entid_map.json", 'w') as f:
+            json.dump(doc_entid_map, f)
