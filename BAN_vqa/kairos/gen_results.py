@@ -59,7 +59,8 @@ def gen_coref(task, topic, fnames, results, dataset, p_th=0.5, iou_th=0.5):
     corefs = []
     doc_entid_map = json.load(open(f"data/{task}/json_output/{topic}.json"))
     for (doc_ent_id, res) in tqdm(results.items()):
-        if doc_ent_id not in doc_entid_map:
+        pdb.set_trace()
+        if str(doc_ent_id) not in doc_entid_map:
             continue
         for (img_id, box_id, p) in res:
             pdb.set_trace()
