@@ -16,6 +16,8 @@ import pdb
 from tqdm import tqdm
 from collections import defaultdict
 
+pdb.set_trace = lambda: None
+
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--dset", type=str, default="test", help="dataset name")
