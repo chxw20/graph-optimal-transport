@@ -73,7 +73,7 @@ def process(fpath, name=1, doc_entid_map={}):
             r = l + e["length"]
             new_sent = new_sent[:l] + f"[/EN#{e['ent_name']}/{kairos_to_flickr_ent_map[e['type']]} " + new_sent[l:r] + "]" + new_sent[r:]
             offset -= (8 + len(str(e["ent_name"])) + len(kairos_to_flickr_ent_map[e["type"]]))
-            doc_entid_map[e["ent_name"]] = e["id"]
+            doc_entid_map[e["ent_name"]] = (e["id"], e["type"])
         results.append(new_sent)
 
     return results, name, doc_entid_map

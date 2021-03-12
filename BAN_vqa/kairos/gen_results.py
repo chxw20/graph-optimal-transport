@@ -53,7 +53,7 @@ def gen_coref(task, topic, fnames, results, dataset, p_th=0.5, iou_th=0.5):
             if ent["bbox"][0] == ent["bbox"][1]:
                 continue
             dst_bboxes.append(ent["bbox"])
-            dst_entids.append(ent["id"])
+            dst_entids.append((ent["id"], ent["type"]))
 
         imgid2bboxes[img_id] = dst_bboxes
         imgid2entids[img_id] = dst_entids
@@ -80,7 +80,8 @@ def gen_coref(task, topic, fnames, results, dataset, p_th=0.5, iou_th=0.5):
             if len(matched_bboxes) == 0:
                 continue
             matched_bboxes = sorted(matched_bboxes, key=lambda x: x[1], reverse=True)
-            corefs.append((doc_entid_map[str(doc_ent_id)], imgid2entids[img_id][matched_bboxes[0][0]], p))
+            if doc_entid_map[str(doc_ent_id)][1] == imgid2entids[img_id][matched_bboxes[0][0]][1]:
+                corefs.append((doc_entid_map[str(doc_ent_id)][0], imgid2entids[img_id][matched_bboxes[0][0]][0], p))
 
     return corefs
 
