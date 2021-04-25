@@ -75,7 +75,7 @@ def extract(split, infiles, task='scenario_data'):
                 reader = csv.DictReader(tsv_in_file, delimiter='\t', fieldnames=FIELDNAMES)
                 for item in reader:
                     item['num_boxes'] = int(item['num_boxes'])
-                    image_id = int(item['img_id'])
+                    image_id = item['img_id']
                     if image_id in imgids:
                         num_boxes += item['num_boxes']
     else:
@@ -105,7 +105,7 @@ def extract(split, infiles, task='scenario_data'):
                 item['num_boxes'] = int(item['num_boxes'])
                 item['boxes'] = bytes(item['boxes'], 'utf')
                 item['features'] = bytes(item['features'], 'utf')
-                image_id = int(item['img_id'])
+                image_id = item['img_id']
                 image_w = float(item['img_w'])
                 image_h = float(item['img_h'])
                 bboxes = np.frombuffer(
